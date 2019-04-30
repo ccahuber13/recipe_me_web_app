@@ -13,10 +13,11 @@
 // All data in current state and current moment is the current state. We want this to be all in one single object.
 
 import Search from './models/Search';
-import {elements} from './views/base';
+import {elements, renderLoader, clearLoader} from './views/base';
 import * as searchView from './views/searchView';
 
-/** Global state of the app - Stored in one central object/variable to be accessed throughout the contorller.
+
+/** Global state of the app - Stored in one central object/variable to be accessed throughout the controller.
  * -Search object
  * -Current recipe object
  * -Shopping list object
@@ -36,12 +37,14 @@ const controlSearch = async () => {
         // 3. Prepare UI for results
         searchView.clearInput();
         searchView.clearResults();
+        renderLoader(elements.searchRes);
         
         // 4. Search for recipes
         // Use await to wait for results and returns a promise. getResults is an async function.
         await state.search.getResults();
 
         // 5. render results on UI - Only want to happen after getting the results from API
+        clearLoader();
         searchView.renderResults(state.search.result);
     }
 }
