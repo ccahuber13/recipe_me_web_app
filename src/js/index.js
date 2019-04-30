@@ -13,6 +13,8 @@
 // All data in current state and current moment is the current state. We want this to be all in one single object.
 
 import Search from './models/Search';
+import {elements} from './views/base';
+import * as searchView from './views/searchView';
 
 /** Global state of the app - Stored in one central object/variable to be accessed throughout the contorller.
  * -Search object
@@ -26,25 +28,26 @@ const state = {};
 // Use an async function to use await for API results within.
 const controlSearch = async () => {
     // 1. Get query from view
-    const query = 'pizza'; //TODO
-
+    const query = searchView.getInput();//TODO
     if(query) {
         // 2. New search object and add to state
         state.search = new Search(query);
 
         // 3. Prepare UI for results
-
+        searchView.clearInput();
+        searchView.clearResults();
+        
         // 4. Search for recipes
         // Use await to wait for results and returns a promise. getResults is an async function.
         await state.search.getResults();
 
         // 5. render results on UI - Only want to happen after getting the results from API
-        console.log(state.search.result);
+        searchView.renderResults(state.search.result);
     }
 }
 
 // create callbackfunction > pass event (e) object into callback.
-document.querySelector('.search').addEventListener('submit', e => {
+elements.searchForm.addEventListener('submit', e => {
     // Stops the page from re-loading on each submit
     e.preventDefault();
     // Run control search function. Place outside event listener to keep code clean and DRY.
