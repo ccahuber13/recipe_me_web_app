@@ -8,24 +8,9 @@ export const clearInput = () => {
     elements.searchInput.value = '';
 };
 
+// Clear results
 export const clearResults = () => {
     elements.searchResList.innerHTML = '';
-}
-
-// Limit title length of recipe. 
-const limitRecipeTitle = (title, limit = 17) => {
-    const newTitle = [];
-    // 1. Test if title is longer than limit
-    if (title.length > limit) {
-        title.split(' ').reduce((acc, cur) => {
-            if (acc + cur.length <= limit) {
-                newTitle.push(cur);
-            }
-            return acc + cur.length;
-        }, 0);
-        return `${newTitle.join(' ')} ...`;
-    } 
-    return title;
 }
 
 // Get a single recipe and render it
@@ -37,7 +22,7 @@ const renderRecipe = recipe => {
                     <img src="${recipe.image_url}" alt="Test">
                 </figure>
                 <div class="results__data">
-                    <h4 class="results__name">${limitRecipeTitle(recipe.title)}</h4>
+                    <h4 class="results__name">${recipe.title}</h4>
                     <p class="results__author">${recipe.publisher}</p>
                 </div>
             </a>
@@ -46,7 +31,25 @@ const renderRecipe = recipe => {
     elements.searchResList.insertAdjacentHTML('beforeend', markup);
 };
 
+const renderButtons = (page, numResults, resPerPage) => {
+    const pages = Math.ceil(numResults / resPerPage);
+    if (page === 1 && pages > 1) {
+        // Button to go next page
+    } else if (page < pages) {
+        // Both buttons
+    } else if (page === pages && pages > 1) {
+        // Buttong go to previous page
+    };
+};
+
 // Loop through all recipe results and call renderRecipe function on each of them.
-export const renderResults = recipes => {
-    recipes.forEach(renderRecipe)
+export const renderResults = (recipes, page = 1, resPerPage = 10) => {
+    // Creating pagination of results.
+    // Dyanamically render the page results depending on which page you are on.
+    // Example - page 3 - 1 = 2 * 10 = start at [20]
+    const start = (page - 1) * resPerPage;
+    // ex - 3 * 10 = end on [30]
+    const end = page * resPerPage;
+    // Slice from start up to number before end but not end itself.
+    recipes.slice(start, end).forEach(renderRecipe)
 };
