@@ -13,6 +13,7 @@
 // All data in current state and current moment is the current state. We want this to be all in one single object.
 
 import Search from './models/Search';
+import Recipe from './models/Recipe';
 import {elements, renderLoader, clearLoader} from './views/base';
 import * as searchView from './views/searchView';
 
@@ -26,6 +27,9 @@ import * as searchView from './views/searchView';
 // Start with empty object so each time app is reloaded, start with empty object.
 const state = {};
 
+/**
+ * SEARCH CONTROLLER =========================================================
+ */
 // Use an async function to use await for API results within.
 const controlSearch = async () => {
     // 1. Get query from view
@@ -39,17 +43,23 @@ const controlSearch = async () => {
         searchView.clearResults();
         renderLoader(elements.searchRes);
         
-        // 4. Search for recipes
-        // Use await to wait for results and returns a promise. getResults is an async function.
-        await state.search.getResults();
+        try {
+            // 4. Search for recipes
+            // Use await to wait for results and returns a promise. getResults is an async function.
+            await state.search.getResults();
 
-        // 5. render results on UI - Only want to happen after getting the results from API
-        clearLoader();
-        searchView.renderResults(state.search.result);
+            // 5. render results on UI - Only want to happen after getting the results from API
+            clearLoader();
+            searchView.renderResults(state.search.result);
+
+        } catch (err) {
+            alert('Could not get search');
+            clearLoader();
+        }
     }
 }
 
-// create callbackfunction > pass event (e) object into callback.
+// create callback function > pass event (e) object into callback.
 elements.searchForm.addEventListener('submit', e => {
     // Stops the page from re-loading on each submit
     e.preventDefault();
@@ -58,4 +68,56 @@ elements.searchForm.addEventListener('submit', e => {
 });
 
 // store results of new Search object with (query);
+
+
+elements.searchResPages.addEventListener('click', e => {
+    const btn = e.target.closest('.btn-inline');
+    if (btn) {
+        // Grab page number from html data attr. Set the base to 10 for number formatting.
+        const goToPage = parseInt(btn.dataset.goto, 10);
+        searchView.clearResults();
+        searchView.renderResults(state.search.result, goToPage);
+    }
+});
+
+
+/**
+ * RECIPE CONTROLLER =========================================================
+ */
+const controlRecipe = async () => {
+    // window is entire browser, location gets entire URL, hash gets the hash ID of page.
+    // Use replace string method to remove the hash.
+    const id = window.location.hash.replace('#', '');
+    console.log(id);
+    // Only do if ID exists
+    if (id) {
+        // Prepare UI for changes
+
+        // Create new recipe
+        state.recipe = new Recipe(id);
+
+        // Get recipe data
+        try {
+            await state.recipe.getRecipe();
+
+            // Calculate servings and time
+            state.recipe.calcTime();
+            state.recipe.calcServings();
+    
+            // Render recipe 
+            console.log(state.recipe);
+            
+        } catch (err) {
+
+            alert('Error getting recipe!');
+        }
+    }
+}
+
+// Listen for a hash change and run controlRecipe function.
+// window.addEventListener('hashchange', controlRecipe);
+// window.addEventListener('load', controlRecipe);
+
+// Attach event listener to multiple items. Loop over event type strings, call window.addEventListener on each of them.
+['hashchange', 'load'].forEach(event => window.addEventListener(event, controlRecipe));
 
