@@ -37,23 +37,72 @@ export default class Recipe {
 
     // Parse out the ingredients of the recipe to standardize measurements
     parseIngredients() {
-        const unitsLong = ['tablespoons', 'tablespoon', 'ounce', 'ounces', 'teaspoon', 'teaspoons', 'cups', 'pounds'];
+        const unitsLong = ['tablespoons', 'tablespoon', 'ounces', 'ounce', 'teaspoons', 'teaspoon', 'cups', 'pounds'];
         const unitsShort = ['tbsp', 'tbsp', 'oz', 'oz', 'tsp', 'tsp', 'cup', 'pound'];
 
         // Loop over each element, before function and return to new array.
         const newIngredients = this.ingredients.map(el => {
             // 1. Uniform units
-            let ingredients = el.toLowerCase();
+            let ingredient = el.toLowerCase();
             // Loop over unitsLong array and replace with the shorter version from unitsShort array.
             unitsLong.forEach((unit, i) => {
-                ingredient = ingredient.replace(unit, unitShort[i]);
+                ingredient = ingredient.replace(unit, unitsShort[i]);
             });
 
             // 2. Remove parenthesis
-            ingredient = ingredient.replace(/ *\([^))]*\) */g, '');
+            ingredient = ingredient.replace(/ *\([^))]*\) */g, ' ');
             // 3. Parse ingredients into count, unit and ingredient
+                // First split each word into a new array.
+            const arrIng = ingredient.split(' ');
+                // Find the index where the weight/size unit is located when we don't know which unit we are looking for specifically. 
+                // findIndex on each element. Perform a test on each element with callback function.
+                // includes method checks if passed in object exists and returns true/false.
+                // will check if unit exists in unitsShort array, and return the index if true.
+            const unitIndex = arrIng.findIndex(el2 => unitsShort.includes(el2));
+            // Initialize final ingredient object. Block scoped so init outsize of if/else statement below.
+            let objIng;
+            // If unit exists
+            if (unitIndex > -1) {
+                // If one of our units in unitsShort array exist
+                // slice count from 0 up until it finds the unit. Assuming the first or second elements are counts.
+                    // Ex. 1 1/2 cup, arrCount =  [1, 1/2] [cup]
+                    // Ex. 1 cup, arrCount = [4]
+                const arrCount = arrIng.slice(0, unitIndex);
+                
+                let count;
+                // If only 1 count before unit
+                if (arrCount.length === 1) {
+                    count = eval(arrIng[0].replace('-', '+'));
+                } else {
+                    // Ex. [1, 1/2] [cup] eval('1+1/2') --> 1.5 = turns into javascript code.
+                    count = eval(arrIng.slice(0, unitIndex).join('+'));
+                }
+                objIng = {
+                    count,
+                    unit: arrIng[unitIndex],
+                    ingredient: arrIng.slice(unitIndex + 1).join(' ')
+                }
 
-            return ingredient;
+            } else if (parseInt(arrIng[0], 10)) {
+                // A number exists but not necessarily a unit in our array. ex - 1 package.
+                // assuming first position is number, try to parse into int with base 10. "Coerce into true".
+                objIng = {
+                    count: parseInt(arrIng[0], 10),
+                    unit: '',
+                    // List ingredient starting at second element and rest of array. Join array back into a string.
+                    ingredient: arrIng.slice(1).join(' ')
+                }
+            } else if (unitIndex === -1) {
+                // No Unit and No number in 1st position
+                objIng = {
+                    count: 1,
+                    unit: '',
+                    // list entire ingredient
+                    ingredient
+                }
+            }
+
+            return objIng;
         })
         this.ingredients = newIngredients;
     }
