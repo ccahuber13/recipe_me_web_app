@@ -39,6 +39,7 @@ export default class Recipe {
     parseIngredients() {
         const unitsLong = ['tablespoons', 'tablespoon', 'ounces', 'ounce', 'teaspoons', 'teaspoon', 'cups', 'pounds'];
         const unitsShort = ['tbsp', 'tbsp', 'oz', 'oz', 'tsp', 'tsp', 'cup', 'pound'];
+        const units = [...unitsShort, 'kg', 'g'];
 
         // Loop over each element, before function and return to new array.
         const newIngredients = this.ingredients.map(el => {
@@ -58,7 +59,7 @@ export default class Recipe {
                 // findIndex on each element. Perform a test on each element with callback function.
                 // includes method checks if passed in object exists and returns true/false.
                 // will check if unit exists in unitsShort array, and return the index if true.
-            const unitIndex = arrIng.findIndex(el2 => unitsShort.includes(el2));
+            const unitIndex = arrIng.findIndex(el2 => units.includes(el2));
             // Initialize final ingredient object. Block scoped so init outsize of if/else statement below.
             let objIng;
             // If unit exists
