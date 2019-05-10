@@ -20,7 +20,7 @@ export default class Recipe {
             this.ingredients = res.data.recipe.ingredients;
         } catch (error) {
             console.log(error);
-            alert('Something went wrong :(');
+            alert('Could not get recipe get recipe()');
         }
     }
 
@@ -106,5 +106,21 @@ export default class Recipe {
             return objIng;
         })
         this.ingredients = newIngredients;
+    
     }
+
+    // pass in type - increase or decrease
+    updateServings (type) {
+        // Update servings
+        const newServings = type === 'dec' ? this.servings - 1 : this.servings + 1;
+
+        // Update ingredients
+        this.ingredients.forEach(ing => {
+            ing.count *= (newServings / this.servings);
+        })
+
+        this.servings = newServings;
+
+    }
+
 };

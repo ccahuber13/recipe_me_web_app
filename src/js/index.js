@@ -95,19 +95,23 @@ elements.searchResPages.addEventListener('click', e => {
  */
 const controlRecipe = async () => {
     // window is entire browser, location gets entire URL, hash gets the hash ID of page.
-    // Use replace string method to remove the hash.
+    // Use replace string method to remove the hashtag of id.
     const id = window.location.hash.replace('#', '');
-    console.log(id);
     // Only do if ID exists
     if (id) {
         // Prepare UI for changes
-            recipeView.clearRecipe();
-            renderLoader(elements.recipe);
+        recipeView.clearRecipe();
+        // Display render gfx in '.recipe'
+        renderLoader(elements.recipe);
+
+        // Highlight selected search item
+        if(state.search){searchView.highlightSelected(id);};
+
         // Create new recipe
         state.recipe = new Recipe(id);
-
+      
         // TESTING
-        window.r = state.recipe;
+        // window.r = state.recipe;
 
         // Get recipe data
         try {
@@ -136,3 +140,21 @@ const controlRecipe = async () => {
 // Attach event listener to multiple items. Loop over event type strings, call window.addEventListener on each of them.
 ['hashchange', 'load'].forEach(event => window.addEventListener(event, controlRecipe));
 
+
+// Handling recipe button clicks
+elements.recipe.addEventListener('click', e => {
+    // if clicked target matches this css class, or any child * // may click on icon/graphic/element child of .btn-decrease.
+    if (e.target.matches('.btn-decrease, .btn-decrease *')) {
+        // Decrease recipe servings only if greater than 1. 
+        if (state.recipe.servings > 1){
+            state.recipe.updateServings('dec');
+            recipeView.updateServIng(state.recipe);
+        }
+
+    } else if (e.target.matches('.btn-increase, .btn-increase *')) {
+        // Decrease button is clicked
+        state.recipe.updateServings('inc');
+        recipeView.updateServIng(state.recipe);
+    };
+    console.log(state.recipe);
+})

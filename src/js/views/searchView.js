@@ -14,6 +14,17 @@ export const clearResults = () => {
     elements.searchResPages.innerHTML = '';
 }
 
+export const highlightSelected = id => {
+    // Remove selected class from all a tags. Select all, create array, loop and remove.
+    const resultsArr = Array.from(document.querySelectorAll('.results__link'));
+    resultsArr.forEach(el=> {
+        el.classList.remove('results__link--active');
+    })
+    // Can't put in base.js because element not yet loaded into Dom.
+    // Select link with href = our passed in id.
+    document.querySelector(`a[href="#${id}"]`).classList.add('results__link--active');
+};
+
 export const limitRecipeTitle = (title, limit = 17) => {
     const newTitle = [];
     if (title.length > limit) {
@@ -34,7 +45,7 @@ export const limitRecipeTitle = (title, limit = 17) => {
 const renderRecipe = recipe => {
     const markup = ` 
         <li>
-            <a class="results__link results__link--active" href="#${recipe.recipe_id}">
+            <a class="results__link" href="#${recipe.recipe_id}">
                 <figure class="results__fig">
                     <img src="${recipe.image_url}" alt="Test">
                 </figure>
