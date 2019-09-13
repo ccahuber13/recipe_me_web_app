@@ -16,7 +16,7 @@ export default class List {
         }
         // Push item to array
         this.items.push(item);
-        //return the item (Good practice to return the object)
+        //return the item to store in a var (Good practice to return the object)
         return item;
     }
 

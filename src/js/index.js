@@ -1,3 +1,7 @@
+/**
+ * Author Christopher C. Huber
+ */
+
 // Global app controller
 
 // When importing an NPM module just use the name of the dependency. When importing your own modules, use file path.
@@ -16,10 +20,12 @@
 import Search from './models/Search';
 import Recipe from './models/Recipe';
 import List from './models/List';
+import Likes from './models/Likes';
 import {elements, renderLoader, clearLoader} from './views/base';
 import * as searchView from './views/searchView';
 import * as recipeView from './views/recipeView';
 import * as listView from './views/listView';
+
 
 
 /** Global state of the app - Stored in one central object/variable to be accessed throughout the controller.
@@ -34,7 +40,7 @@ const state = {};
 window.state = state;
 
 /**
- * SEARCH CONTROLLER =========================================================
+ * SEARCH CONTROLLER ===============================================================================
  */
 // Use an async function to use await for API results within.
 const controlSearch = async () => {
@@ -54,7 +60,8 @@ const controlSearch = async () => {
         
         try {
             // 4. Search for recipes
-            // Use await to wait for results and returns a promise. getResults is an async function.
+            // Use await to wait for results and returns a promise. 
+            // getResults is an async function.
             await state.search.getResults();
 
             // 5. render results on UI - Only want to happen after getting the results from API
@@ -96,7 +103,7 @@ elements.searchResPages.addEventListener('click', e => {
 
 
 /**
- * RECIPE CONTROLLER =========================================================
+ * RECIPE CONTROLLER =================================================================================
  */
 const controlRecipe = async () => {
     // window is entire browser, location gets entire URL, hash gets the hash ID of page.
@@ -141,7 +148,7 @@ const controlRecipe = async () => {
 
 
 /**
- * LIST CONTROLLER =========================================================
+ * LIST CONTROLLER =====================================================================================
  */
 const controlList = () => {
     // Create a new list IF there is none yet.
@@ -155,8 +162,47 @@ const controlList = () => {
     })
 };
 
+/**
+ * LIKES CONTROLLER =====================================================================================
+ */
+const controlLike = () => {
+    // If Likes list does not exist create a new one.
+    if (!state.likes) state.likes = new Likes();
+    // Get the current id of a searched recipe in our current state object.
+    const currentID = state.recipe.id;
+    
+    // User hasn't liked current recipe yet.
+    if (!state.likes.isLiked(currentID)){
+        // Add like to the current state object
+        const newLike = state.likes.addLike(
+            currentID,
+            state.recipe.title,
+            state.recipe.author,
+            state.recipe.img
+        );
+
+        // Toggle the like button to show like
+
+        // Add like to UI list
+        console.log(state.likes);
+
+    // User has liked the current recipe.
+    } else {
+        // Remove like from the current state object
+        state.likes.deleteLike(currentID);
+        // Toggle the like button to show it's NOT liked
+
+        // Remove like from UI list
+        console.log(state.likes);
+    }
+};
+
+/**
+ * EVENT LISTENERS DELETE AND LIST ITEM UPDATE ==========================================================
+ */
 // Handle delete and update list item events
-// find the id of the closest shopping item clicked on. If the delete button is clicked delete item. Delete item from UI.
+// find the id of the closest shopping item clicked on. 
+// If the delete button is clicked delete item. Delete item from UI.
 elements.shopping.addEventListener('click', e => {
     const id = e.target.closest('.shopping__item').dataset.itemid
 
@@ -179,35 +225,40 @@ elements.shopping.addEventListener('click', e => {
 
 
 /**
-* EVENT LISTENERS BUTTON CLICKS =========================================================
+* RECIPE EVENT LISTENERS BUTTON CLICKS ===========================================================================
 */
 
 // Listen for a hash change and run controlRecipe function.
 // window.addEventListener('hashchange', controlRecipe);
 // window.addEventListener('load', controlRecipe);
 
-// Attach event listener to multiple items. Loop over event type strings, call window.addEventListener on each of them.
+// Attach event listener to multiple items. 
+// Loop over event type strings, call window.addEventListener on each of them.
 ['hashchange', 'load'].forEach(event => window.addEventListener(event, controlRecipe));
 
 
 // Handling recipe button clicks
 elements.recipe.addEventListener('click', e => {
-    // if clicked target matches this css class, or any child * // may click on icon/graphic/element child of .btn-decrease.
+    // Decrease ingredient counts
+    // if clicked target matches this css class, or any child * 
+    // may click on icon/graphic/element child of .btn-decrease.
     if (e.target.matches('.btn-decrease, .btn-decrease *')) {
         // Decrease recipe servings only if greater than 1. 
         if (state.recipe.servings > 1){
             state.recipe.updateServings('dec');
             recipeView.updateServIng(state.recipe);
         }
-
+    // Increase ingredient counts
     } else if (e.target.matches('.btn-increase, .btn-increase *')) {
         // Decrease button is clicked
         state.recipe.updateServings('inc');
         recipeView.updateServIng(state.recipe);
     } else if (e.target.matches('.recipe__btn--add, .recipe__btn--add *')) {
-        // Call control list function on click
+        // Add ingredients to shopping list
         controlList();
-        
+    } else if (e.target.matches('.recipe__love, .recipe__love *')){
+        // Like controller called
+        controlLike();
     };
     
 });
