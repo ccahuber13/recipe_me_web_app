@@ -25,6 +25,10 @@ const HtmlWebpackPlugin = require ('html-webpack-plugin');
                 {
                     filename: 'index.html', 
                     template: './src/index.html'
+                },
+                {
+                    filename: 'style.css',
+                    template: './src/css/style.css'
                 }
             )
         ],
