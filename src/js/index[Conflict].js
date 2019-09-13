@@ -30,8 +30,6 @@ import * as listView from './views/listView';
  */
 // Start with empty object so each time app is reloaded, start with empty object.
 const state = {};
-// Make state available so we can view for testing purposes
-window.state = state;
 
 /**
  * SEARCH CONTROLLER =========================================================
@@ -138,8 +136,6 @@ const controlRecipe = async () => {
     }
 }
 
-
-
 /**
  * LIST CONTROLLER =========================================================
  */
@@ -151,31 +147,8 @@ const controlList = () => {
     state.recipe.ingredients.forEach(el => {
         const item = state.list.addItem(el.count, el.unit, el.ingredient);
         listView.renderItem(item);
-       
     })
 };
-
-// Handle delete and update list item events
-// find the id of the closest shopping item clicked on. If the delete button is clicked delete item. Delete item from UI.
-elements.shopping.addEventListener('click', e => {
-    const id = e.target.closest('.shopping__item').dataset.itemid
-
-    // Handle the delete button
-    if (e.target.matches('.shopping__delete, .shopping__delete *')) {
-        state.list.deleteItem(id);
-
-        // Delete from UI
-        listView.deleteItem(id);
-
-    // Handle the count update
-    // if target clicked is our input with ingredient value
-    } else if (e.target.matches('.shopping__count-value')) {
-        // store the value of the ingredient of the clicked target.
-        const val = parseFloat(e.target.value);
-        // Pass in the val in our input to the updateCount function.
-        state.list.updateCount(id, val);
-    };
-});
 
 
 /**
@@ -206,8 +179,6 @@ elements.recipe.addEventListener('click', e => {
         recipeView.updateServIng(state.recipe);
     } else if (e.target.matches('.recipe__btn--add, .recipe__btn--add *')) {
         // Call control list function on click
-        controlList();
-        
     };
     
 });
